@@ -27,7 +27,6 @@ jobs:
           token = os.environ["NOTION_TOKEN"]
           ds_id = os.environ["NOTION_DATA_SOURCE_ID"]
 
-          # New API: data sources have their own endpoint
           req = urllib.request.Request(
               f"https://api.notion.com/v1/data_sources/{ds_id}",
               headers={
@@ -46,12 +45,12 @@ jobs:
 
           props = ds.get("properties", {})
           module_prop = props.get("Module")
-          if not module_prop or module_prop.get("type") != "multi_select":
-              print("ERROR: 'Module' property not found or not a multi_select")
+          if not module_prop or module_prop.get("type") != "select":
+              print("ERROR: 'Module' property not found or not a select")
               print("Available props:", list(props.keys()))
               raise SystemExit(1)
 
-          options = module_prop["multi_select"].get("options", [])
+          options = module_prop["select"].get("options", [])
           names = sorted([o["name"] for o in options], key=lambda s: s.lower())
 
           out = {
