@@ -55,10 +55,7 @@
     padding: 24px 20px 120px;
   }
 
-  /* ─── Header ─── */
-  header {
-    margin: 16px 0 32px;
-  }
+  header { margin: 16px 0 32px; }
 
   .date-line {
     font-family: 'JetBrains Mono', monospace;
@@ -78,11 +75,7 @@
     color: var(--ink);
   }
 
-  h1 em {
-    font-style: italic;
-    font-weight: 400;
-    color: var(--leaf);
-  }
+  h1 em { font-style: italic; font-weight: 400; color: var(--leaf); }
 
   .subtitle {
     font-size: 14px;
@@ -91,7 +84,6 @@
     font-style: italic;
   }
 
-  /* ─── Section labels ─── */
   .section-label {
     font-family: 'JetBrains Mono', monospace;
     font-size: 10px;
@@ -111,7 +103,6 @@
     background: linear-gradient(to right, var(--border), transparent);
   }
 
-  /* ─── Field card ─── */
   .field {
     background: var(--bg-elevated);
     border: 1px solid var(--border);
@@ -123,7 +114,6 @@
 
   .field.active { border-color: var(--moss); }
 
-  /* ─── Title input ─── */
   input[type="text"] {
     width: 100%;
     background: transparent;
@@ -159,10 +149,7 @@
     letter-spacing: -0.01em;
   }
 
-  .cal-nav {
-    display: flex;
-    gap: 6px;
-  }
+  .cal-nav { display: flex; gap: 6px; }
 
   .cal-nav button {
     width: 32px;
@@ -214,9 +201,7 @@
     font-variant-numeric: tabular-nums;
   }
 
-  .cal-day:not(.muted):hover {
-    background: var(--surface);
-  }
+  .cal-day:not(.muted):hover { background: var(--surface); }
 
   .cal-day.muted {
     color: var(--border);
@@ -234,9 +219,7 @@
     font-weight: 500;
   }
 
-  .cal-day.selected.today {
-    border-color: var(--leaf);
-  }
+  .cal-day.selected.today { border-color: var(--leaf); }
 
   /* ─── Module chips ─── */
   .modules-wrap {
@@ -258,9 +241,7 @@
     user-select: none;
   }
 
-  .module-chip:active {
-    transform: scale(0.96);
-  }
+  .module-chip:active { transform: scale(0.96); }
 
   .module-chip.selected {
     background: var(--leaf);
@@ -285,7 +266,14 @@
     opacity: 0.6;
   }
 
-  /* ─── Status slider ─── */
+  .modules-hint {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  /* ─── Status ─── */
   .status-row {
     display: flex;
     align-items: center;
@@ -293,13 +281,8 @@
     margin-bottom: 18px;
   }
 
-  .status-row .label {
-    flex: 1;
-    font-size: 14px;
-    color: var(--pale);
-  }
+  .status-row .label { flex: 1; font-size: 14px; color: var(--pale); }
 
-  /* iOS-style toggle */
   .toggle {
     position: relative;
     width: 46px;
@@ -324,17 +307,10 @@
     transition: all 0.2s ease;
   }
 
-  .toggle.on {
-    background: var(--moss);
-    border-color: var(--moss);
-  }
+  .toggle.on { background: var(--moss); border-color: var(--moss); }
 
-  .toggle.on::after {
-    left: 22px;
-    background: var(--leaf);
-  }
+  .toggle.on::after { left: 22px; background: var(--leaf); }
 
-  /* Status slider — 3-step */
   .status-slider {
     position: relative;
     background: var(--surface);
@@ -366,10 +342,7 @@
     position: relative;
   }
 
-  .status-slider .step.active {
-    color: var(--bg);
-    font-weight: 500;
-  }
+  .status-slider .step.active { color: var(--bg); font-weight: 500; }
 
   .status-slider .indicator {
     position: absolute;
@@ -392,13 +365,10 @@
     font-style: italic;
     margin-top: 10px;
     text-align: center;
-    transition: opacity 0.2s ease;
   }
 
   /* ─── Submit ─── */
-  .submit-area {
-    margin-top: 32px;
-  }
+  .submit-area { margin-top: 32px; }
 
   button.submit {
     width: 100%;
@@ -425,7 +395,6 @@
     box-shadow: none;
   }
 
-  /* ─── Status message ─── */
   .status {
     margin-top: 18px;
     padding: 14px 16px;
@@ -456,7 +425,6 @@
     color: var(--muted);
   }
 
-  /* ─── Footer ─── */
   footer {
     margin-top: 40px;
     text-align: center;
@@ -505,12 +473,13 @@
     <div class="cal-grid" id="cal-grid"></div>
   </div>
 
-  <!-- ════════ MODULES ════════ -->
-  <div class="section-label">Modules</div>
-  <div class="field" data-field="modules">
+  <!-- ════════ MODULE ════════ -->
+  <div class="section-label">Module</div>
+  <div class="field" data-field="module">
     <div class="modules-wrap" id="modules-wrap">
       <div class="modules-empty">Loading modules …</div>
     </div>
+    <div class="modules-hint">Pick one. Tap again to deselect.</div>
     <div class="modules-meta" id="modules-meta"></div>
   </div>
 
@@ -543,23 +512,20 @@
 </div>
 
 <script>
-  // ───────── CONFIG — edit after setup ─────────
-  const GITHUB_USER = "Alexfionn";
+  // ───────── CONFIG ─────────
+  const GITHUB_USER = "YOUR_GITHUB_USERNAME";
   const GITHUB_REPO = "study-calendar";
-  // Module list is fetched from this repo's modules.json (updated nightly)
-  // ──────────────────────────────────────────────
+  // ──────────────────────────
 
-  // ───────── State ─────────
   const state = {
     selectedDate: new Date(),
     viewMonth: new Date(),
-    selectedModules: new Set(),
-    statusPos: 0,        // 0 = Not started, 1 = In progress, 2 = Done
-    statusTracked: true, // false → submit empty status (the " " case)
+    selectedModule: null,    // single string, not a Set anymore
+    statusPos: 0,
+    statusTracked: true,
     modules: []
   };
 
-  // Initialize date displays
   state.selectedDate.setHours(12, 0, 0, 0);
   state.viewMonth = new Date(state.selectedDate.getFullYear(), state.selectedDate.getMonth(), 1);
 
@@ -587,7 +553,6 @@
     const m = state.viewMonth.getMonth();
     monthEl.textContent = `${monthNames[m]} ${y}`;
 
-    // Day-of-week headers
     dowShort.forEach(d => {
       const el = document.createElement("div");
       el.className = "cal-dow";
@@ -595,11 +560,8 @@
       grid.appendChild(el);
     });
 
-    // First day offset (Mon = 0 ... Sun = 6)
     const firstOfMonth = new Date(y, m, 1);
     const offset = (firstOfMonth.getDay() + 6) % 7;
-
-    // Days from previous month
     const prevMonthLast = new Date(y, m, 0).getDate();
     for (let i = offset - 1; i >= 0; i--) {
       const el = document.createElement("div");
@@ -608,7 +570,6 @@
       grid.appendChild(el);
     }
 
-    // Current month
     const daysInMonth = new Date(y, m + 1, 0).getDate();
     const today = new Date();
     for (let d = 1; d <= daysInMonth; d++) {
@@ -625,7 +586,6 @@
       grid.appendChild(el);
     }
 
-    // Next-month spillover to fill grid (max 42 cells incl headers)
     const totalCells = offset + daysInMonth;
     const trailing = (7 - (totalCells % 7)) % 7;
     for (let i = 1; i <= trailing; i++) {
@@ -653,12 +613,11 @@
 
   renderCalendar();
 
-  // ───────── Modules ─────────
+  // ───────── Modules — single-select ─────────
   async function loadModules() {
     const wrap = document.getElementById("modules-wrap");
     const meta = document.getElementById("modules-meta");
     try {
-      // Cache-bust so newly synced modules appear without browser cache delay
       const res = await fetch("modules.json?t=" + Date.now());
       if (!res.ok) throw new Error("HTTP " + res.status);
       const data = await res.json();
@@ -675,12 +634,16 @@
         const chip = document.createElement("div");
         chip.className = "module-chip";
         chip.textContent = name;
+        chip.dataset.module = name;
         chip.addEventListener("click", () => {
-          if (state.selectedModules.has(name)) {
-            state.selectedModules.delete(name);
+          if (state.selectedModule === name) {
+            // tap selected chip again → deselect
+            state.selectedModule = null;
             chip.classList.remove("selected");
           } else {
-            state.selectedModules.add(name);
+            // single-select: clear all, set this one
+            state.selectedModule = name;
+            wrap.querySelectorAll(".module-chip").forEach(c => c.classList.remove("selected"));
             chip.classList.add("selected");
           }
         });
@@ -725,7 +688,6 @@
   function getToken() {
     let t = localStorage.getItem("gh_token_studycal");
     if (!t) {
-      // Re-use the daily-tracker token if you stored it under "gh_token"
       t = localStorage.getItem("gh_token");
       if (t) localStorage.setItem("gh_token_studycal", t);
     }
@@ -778,12 +740,12 @@
     }
 
     const statusLabels = ["Not started", "In progress", "Done"];
-    const statusValue = state.statusTracked ? statusLabels[state.statusPos] : " "; // single space
+    const statusValue = state.statusTracked ? statusLabels[state.statusPos] : " ";
 
     const payload = {
       title: title,
       date: isoDate(state.selectedDate),
-      modules: Array.from(state.selectedModules),
+      module: state.selectedModule,   // single string or null
       status: statusValue
     };
 
@@ -809,9 +771,8 @@
 
       if (res.status === 204) {
         showMsg("Saved. Notion will follow in ~30 sec.", "success");
-        // Reset form
         document.getElementById("title").value = "";
-        state.selectedModules.clear();
+        state.selectedModule = null;
         document.querySelectorAll(".module-chip.selected").forEach(c => c.classList.remove("selected"));
         setTimeout(() => { btn.disabled = false; }, 3000);
       } else {
