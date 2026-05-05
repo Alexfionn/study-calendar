@@ -1,0 +1,80 @@
+name: Sync Modules from Notion
+
+on:
+  schedule:
+    - cron: '0 3 * * *'   # every day at 03:00 UTC
+  workflow_dispatch:       # allows manual trigger via "Run workflow" button
+
+# Required so the workflow can commit modules.json back to the repo
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Fetch module options from Notion
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+        run: |
+          python3 <<'PYEOF'
+          import os, json, urllib.request, urllib.error
+          from datetime import datetime, timezone
+
+          token = os.environ["NOTION_TOKEN"]
+          db_id = os.environ["NOTION_DATABASE_ID"]
+
+          req = urllib.request.Request(
+              f"https://api.notion.com/v1/databases/{db_id}",
+              headers={
+                  "Authorization": f"Bearer {token}",
+                  "Notion-Version": "2022-06-28"
+              }
+          )
+
+          try:
+              with urllib.request.urlopen(req) as r:
+                  db = json.loads(r.read().decode("utf-8"))
+          except urllib.error.HTTPError as e:
+              print("HTTP error:", e.code)
+              print(e.read().decode("utf-8"))
+              raise
+
+          props = db.get("properties", {})
+          module_prop = props.get("Module")
+          if not module_prop or module_prop.get("type") != "multi_select":
+              print("ERROR: 'Module' property not found or not a multi_select")
+              print("Available props:", list(props.keys()))
+              raise SystemExit(1)
+
+          options = module_prop["multi_select"].get("options", [])
+          names = sorted([o["name"] for o in options], key=lambda s: s.lower())
+
+          out = {
+              "modules": names,
+              "updated_at": datetime.now(timezone.utc).isoformat(timespec="seconds")
+          }
+
+          with open("modules.json", "w", encoding="utf-8") as f:
+              json.dump(out, f, indent=2, ensure_ascii=False)
+
+          print(f"Wrote {len(names)} modules:")
+          for n in names:
+              print(" -", n)
+          PYEOF
+
+      - name: Commit modules.json if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet modules.json; then
+            echo "No changes to modules.json"
+          else
+            git add modules.json
+            git commit -m "chore: sync modules from Notion"
+            git push
+          fi

@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="theme-color" content="#1a2e1f" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Study Calendar" />
+<title>Study Calendar</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg: #0f1813;
+    --bg-elevated: #16241c;
+    --surface: #1d3025;
+    --surface-2: #243b2d;
+    --border: #2a4232;
+    --moss: #4a7c59;
+    --sage: #87a878;
+    --leaf: #a8c89a;
+    --pale: #e3ecdc;
+    --ink: #f3f7ee;
+    --muted: #8a9b85;
+    --accent: #d4e8a8;
+    --warn: #c97f5d;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Fraunces', Georgia, serif;
+    font-feature-settings: "ss01", "ss02";
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body {
+    background:
+      radial-gradient(ellipse at top, rgba(74,124,89,0.15), transparent 60%),
+      radial-gradient(ellipse at bottom right, rgba(168,200,154,0.08), transparent 50%),
+      var(--bg);
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+
+  .app {
+    max-width: 540px;
+    margin: 0 auto;
+    padding: 24px 20px 120px;
+  }
+
+  /* ─── Header ─── */
+  header {
+    margin: 16px 0 32px;
+  }
+
+  .date-line {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: var(--moss);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 300;
+    font-size: 38px;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+
+  h1 em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--leaf);
+  }
+
+  .subtitle {
+    font-size: 14px;
+    color: var(--muted);
+    margin-top: 10px;
+    font-style: italic;
+  }
+
+  /* ─── Section labels ─── */
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--moss);
+    text-transform: uppercase;
+    margin: 28px 4px 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, var(--border), transparent);
+  }
+
+  /* ─── Field card ─── */
+  .field {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 18px 18px;
+    margin-bottom: 14px;
+    transition: border-color 0.3s ease;
+  }
+
+  .field.active { border-color: var(--moss); }
+
+  /* ─── Title input ─── */
+  input[type="text"] {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: var(--ink);
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 1.3;
+    padding: 4px 0;
+    outline: none;
+  }
+
+  input[type="text"]::placeholder {
+    color: var(--muted);
+    font-style: italic;
+    font-weight: 300;
+  }
+
+  /* ─── Calendar ─── */
+  .cal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .cal-month {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--pale);
+    letter-spacing: -0.01em;
+  }
+
+  .cal-nav {
+    display: flex;
+    gap: 6px;
+  }
+
+  .cal-nav button {
+    width: 32px;
+    height: 32px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--leaf);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    transition: all 0.15s ease;
+  }
+
+  .cal-nav button:active {
+    background: var(--surface-2);
+    transform: scale(0.95);
+  }
+
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+  }
+
+  .cal-dow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    text-align: center;
+    padding: 6px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .cal-day {
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    font-family: 'Fraunces', serif;
+    font-size: 15px;
+    color: var(--pale);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    background: transparent;
+    border: 1px solid transparent;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .cal-day:not(.muted):hover {
+    background: var(--surface);
+  }
+
+  .cal-day.muted {
+    color: var(--border);
+    cursor: default;
+  }
+
+  .cal-day.today {
+    border-color: var(--moss);
+    color: var(--leaf);
+  }
+
+  .cal-day.selected {
+    background: var(--leaf);
+    color: var(--bg);
+    font-weight: 500;
+  }
+
+  .cal-day.selected.today {
+    border-color: var(--leaf);
+  }
+
+  /* ─── Module chips ─── */
+  .modules-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .module-chip {
+    padding: 8px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--pale);
+    font-family: 'Fraunces', serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+  }
+
+  .module-chip:active {
+    transform: scale(0.96);
+  }
+
+  .module-chip.selected {
+    background: var(--leaf);
+    color: var(--bg);
+    border-color: var(--leaf);
+    font-weight: 500;
+  }
+
+  .modules-empty {
+    color: var(--muted);
+    font-style: italic;
+    font-size: 13px;
+    padding: 4px 0;
+  }
+
+  .modules-meta {
+    margin-top: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    opacity: 0.6;
+  }
+
+  /* ─── Status slider ─── */
+  .status-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+
+  .status-row .label {
+    flex: 1;
+    font-size: 14px;
+    color: var(--pale);
+  }
+
+  /* iOS-style toggle */
+  .toggle {
+    position: relative;
+    width: 46px;
+    height: 26px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    flex-shrink: 0;
+  }
+
+  .toggle::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    background: var(--muted);
+    border-radius: 50%;
+    transition: all 0.2s ease;
+  }
+
+  .toggle.on {
+    background: var(--moss);
+    border-color: var(--moss);
+  }
+
+  .toggle.on::after {
+    left: 22px;
+    background: var(--leaf);
+  }
+
+  /* Status slider — 3-step */
+  .status-slider {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 6px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0;
+    transition: opacity 0.25s ease, filter 0.25s ease;
+  }
+
+  .status-slider.disabled {
+    opacity: 0.35;
+    filter: grayscale(0.6);
+    pointer-events: none;
+  }
+
+  .status-slider .step {
+    text-align: center;
+    padding: 10px 4px;
+    font-family: 'Fraunces', serif;
+    font-size: 13px;
+    color: var(--muted);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 1;
+    position: relative;
+  }
+
+  .status-slider .step.active {
+    color: var(--bg);
+    font-weight: 500;
+  }
+
+  .status-slider .indicator {
+    position: absolute;
+    top: 6px;
+    bottom: 6px;
+    width: calc((100% - 12px) / 3);
+    background: var(--leaf);
+    border-radius: 10px;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 0;
+  }
+
+  .status-slider[data-pos="0"] .indicator { transform: translateX(0); }
+  .status-slider[data-pos="1"] .indicator { transform: translateX(100%); }
+  .status-slider[data-pos="2"] .indicator { transform: translateX(200%); }
+
+  .status-disabled-hint {
+    font-size: 12px;
+    color: var(--muted);
+    font-style: italic;
+    margin-top: 10px;
+    text-align: center;
+    transition: opacity 0.2s ease;
+  }
+
+  /* ─── Submit ─── */
+  .submit-area {
+    margin-top: 32px;
+  }
+
+  button.submit {
+    width: 100%;
+    padding: 18px;
+    background: var(--leaf);
+    color: var(--bg);
+    border: none;
+    border-radius: 14px;
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 20px rgba(168,200,154,0.2);
+  }
+
+  button.submit:active { transform: scale(0.98); }
+
+  button.submit:disabled {
+    background: var(--surface);
+    color: var(--muted);
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  /* ─── Status message ─── */
+  .status {
+    margin-top: 18px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+    text-align: center;
+    display: none;
+  }
+
+  .status.show { display: block; }
+
+  .status.success {
+    background: rgba(168,200,154,0.12);
+    border: 1px solid var(--sage);
+    color: var(--leaf);
+  }
+
+  .status.error {
+    background: rgba(201,127,93,0.12);
+    border: 1px solid var(--warn);
+    color: var(--warn);
+  }
+
+  .status.loading {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  /* ─── Footer ─── */
+  footer {
+    margin-top: 40px;
+    text-align: center;
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.1em;
+  }
+
+  .ornament {
+    text-align: center;
+    color: var(--moss);
+    font-size: 14px;
+    margin: 24px 0;
+    opacity: 0.4;
+    letter-spacing: 0.5em;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header>
+    <div class="date-line" id="date-display">— loading —</div>
+    <h1>New <em>study task</em></h1>
+    <p class="subtitle">A title, a date, a module. Done.</p>
+  </header>
+
+  <!-- ════════ TITLE ════════ -->
+  <div class="section-label">Task</div>
+  <div class="field" data-field="title">
+    <input type="text" id="title" placeholder="What needs doing?" autocomplete="off" />
+  </div>
+
+  <!-- ════════ DATE ════════ -->
+  <div class="section-label">When</div>
+  <div class="field" data-field="date">
+    <div class="cal-head">
+      <div class="cal-month" id="cal-month">— —</div>
+      <div class="cal-nav">
+        <button id="cal-prev" aria-label="Previous month">‹</button>
+        <button id="cal-today" aria-label="Today">·</button>
+        <button id="cal-next" aria-label="Next month">›</button>
+      </div>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+  </div>
+
+  <!-- ════════ MODULES ════════ -->
+  <div class="section-label">Modules</div>
+  <div class="field" data-field="modules">
+    <div class="modules-wrap" id="modules-wrap">
+      <div class="modules-empty">Loading modules …</div>
+    </div>
+    <div class="modules-meta" id="modules-meta"></div>
+  </div>
+
+  <!-- ════════ STATUS ════════ -->
+  <div class="section-label">Status</div>
+  <div class="field" data-field="status">
+    <div class="status-row">
+      <span class="label">Track this task</span>
+      <div class="toggle on" id="status-toggle"></div>
+    </div>
+    <div class="status-slider" id="status-slider" data-pos="0">
+      <div class="indicator"></div>
+      <div class="step active" data-pos="0">Not started</div>
+      <div class="step" data-pos="1">In progress</div>
+      <div class="step" data-pos="2">Done</div>
+    </div>
+    <div class="status-disabled-hint" id="status-hint" style="display:none;">
+      Off → status will be left blank (excluded from automations)
+    </div>
+  </div>
+
+  <!-- ════════ SUBMIT ════════ -->
+  <div class="submit-area">
+    <button class="submit" id="submitBtn">Add to Notion</button>
+    <div class="status" id="status-msg"></div>
+  </div>
+
+  <div class="ornament">· · ·</div>
+  <footer>STUDY · CALENDAR · v1</footer>
+</div>
+
+<script>
+  // ───────── CONFIG — edit after setup ─────────
+  const GITHUB_USER = "YOUR_GITHUB_USERNAME";
+  const GITHUB_REPO = "study-calendar";
+  // Module list is fetched from this repo's modules.json (updated nightly)
+  // ──────────────────────────────────────────────
+
+  // ───────── State ─────────
+  const state = {
+    selectedDate: new Date(),
+    viewMonth: new Date(),
+    selectedModules: new Set(),
+    statusPos: 0,        // 0 = Not started, 1 = In progress, 2 = Done
+    statusTracked: true, // false → submit empty status (the " " case)
+    modules: []
+  };
+
+  // Initialize date displays
+  state.selectedDate.setHours(12, 0, 0, 0);
+  state.viewMonth = new Date(state.selectedDate.getFullYear(), state.selectedDate.getMonth(), 1);
+
+  const todayStr = new Date().toLocaleDateString("en-US", {
+    weekday: "long", year: "numeric", month: "long", day: "numeric"
+  });
+  document.getElementById("date-display").textContent = todayStr;
+
+  // ───────── Calendar ─────────
+  const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const dowShort = ["Mo","Tu","We","Th","Fr","Sa","Su"];
+
+  function isSameDay(a, b) {
+    return a.getFullYear() === b.getFullYear()
+        && a.getMonth() === b.getMonth()
+        && a.getDate() === b.getDate();
+  }
+
+  function renderCalendar() {
+    const monthEl = document.getElementById("cal-month");
+    const grid = document.getElementById("cal-grid");
+    grid.innerHTML = "";
+
+    const y = state.viewMonth.getFullYear();
+    const m = state.viewMonth.getMonth();
+    monthEl.textContent = `${monthNames[m]} ${y}`;
+
+    // Day-of-week headers
+    dowShort.forEach(d => {
+      const el = document.createElement("div");
+      el.className = "cal-dow";
+      el.textContent = d;
+      grid.appendChild(el);
+    });
+
+    // First day offset (Mon = 0 ... Sun = 6)
+    const firstOfMonth = new Date(y, m, 1);
+    const offset = (firstOfMonth.getDay() + 6) % 7;
+
+    // Days from previous month
+    const prevMonthLast = new Date(y, m, 0).getDate();
+    for (let i = offset - 1; i >= 0; i--) {
+      const el = document.createElement("div");
+      el.className = "cal-day muted";
+      el.textContent = prevMonthLast - i;
+      grid.appendChild(el);
+    }
+
+    // Current month
+    const daysInMonth = new Date(y, m + 1, 0).getDate();
+    const today = new Date();
+    for (let d = 1; d <= daysInMonth; d++) {
+      const el = document.createElement("div");
+      el.className = "cal-day";
+      const date = new Date(y, m, d);
+      if (isSameDay(date, today)) el.classList.add("today");
+      if (isSameDay(date, state.selectedDate)) el.classList.add("selected");
+      el.textContent = d;
+      el.addEventListener("click", () => {
+        state.selectedDate = new Date(y, m, d, 12, 0, 0);
+        renderCalendar();
+      });
+      grid.appendChild(el);
+    }
+
+    // Next-month spillover to fill grid (max 42 cells incl headers)
+    const totalCells = offset + daysInMonth;
+    const trailing = (7 - (totalCells % 7)) % 7;
+    for (let i = 1; i <= trailing; i++) {
+      const el = document.createElement("div");
+      el.className = "cal-day muted";
+      el.textContent = i;
+      grid.appendChild(el);
+    }
+  }
+
+  document.getElementById("cal-prev").addEventListener("click", () => {
+    state.viewMonth = new Date(state.viewMonth.getFullYear(), state.viewMonth.getMonth() - 1, 1);
+    renderCalendar();
+  });
+  document.getElementById("cal-next").addEventListener("click", () => {
+    state.viewMonth = new Date(state.viewMonth.getFullYear(), state.viewMonth.getMonth() + 1, 1);
+    renderCalendar();
+  });
+  document.getElementById("cal-today").addEventListener("click", () => {
+    const t = new Date();
+    state.selectedDate = new Date(t.getFullYear(), t.getMonth(), t.getDate(), 12, 0, 0);
+    state.viewMonth = new Date(t.getFullYear(), t.getMonth(), 1);
+    renderCalendar();
+  });
+
+  renderCalendar();
+
+  // ───────── Modules ─────────
+  async function loadModules() {
+    const wrap = document.getElementById("modules-wrap");
+    const meta = document.getElementById("modules-meta");
+    try {
+      // Cache-bust so newly synced modules appear without browser cache delay
+      const res = await fetch("modules.json?t=" + Date.now());
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const data = await res.json();
+      state.modules = data.modules || [];
+
+      wrap.innerHTML = "";
+      if (state.modules.length === 0) {
+        wrap.innerHTML = '<div class="modules-empty">No modules yet — add one in Notion first.</div>';
+        meta.textContent = "";
+        return;
+      }
+
+      state.modules.forEach(name => {
+        const chip = document.createElement("div");
+        chip.className = "module-chip";
+        chip.textContent = name;
+        chip.addEventListener("click", () => {
+          if (state.selectedModules.has(name)) {
+            state.selectedModules.delete(name);
+            chip.classList.remove("selected");
+          } else {
+            state.selectedModules.add(name);
+            chip.classList.add("selected");
+          }
+        });
+        wrap.appendChild(chip);
+      });
+
+      if (data.updated_at) {
+        const d = new Date(data.updated_at);
+        meta.textContent = "Synced " + d.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+                         + " · " + d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+      }
+    } catch (e) {
+      wrap.innerHTML = '<div class="modules-empty">Failed to load modules. Check your repo / cron.</div>';
+      meta.textContent = "Error: " + e.message;
+    }
+  }
+  loadModules();
+
+  // ───────── Status slider ─────────
+  const slider = document.getElementById("status-slider");
+  const toggle = document.getElementById("status-toggle");
+  const hint = document.getElementById("status-hint");
+
+  slider.querySelectorAll(".step").forEach(step => {
+    step.addEventListener("click", () => {
+      const pos = parseInt(step.dataset.pos, 10);
+      state.statusPos = pos;
+      slider.dataset.pos = pos;
+      slider.querySelectorAll(".step").forEach(s => s.classList.remove("active"));
+      step.classList.add("active");
+    });
+  });
+
+  toggle.addEventListener("click", () => {
+    state.statusTracked = !state.statusTracked;
+    toggle.classList.toggle("on", state.statusTracked);
+    slider.classList.toggle("disabled", !state.statusTracked);
+    hint.style.display = state.statusTracked ? "none" : "block";
+  });
+
+  // ───────── Token ─────────
+  function getToken() {
+    let t = localStorage.getItem("gh_token_studycal");
+    if (!t) {
+      // Re-use the daily-tracker token if you stored it under "gh_token"
+      t = localStorage.getItem("gh_token");
+      if (t) localStorage.setItem("gh_token_studycal", t);
+    }
+    if (!t) {
+      t = prompt(
+        "Enter your GitHub Personal Access Token.\n\n" +
+        "Stored only in your browser.\n" +
+        "Create one at: github.com/settings/tokens\n" +
+        "Scope: 'repo' is enough."
+      );
+      if (t) localStorage.setItem("gh_token_studycal", t.trim());
+    }
+    return t;
+  }
+
+  document.querySelector("footer").addEventListener("click", () => {
+    if (confirm("Reset GitHub token?")) {
+      localStorage.removeItem("gh_token_studycal");
+      alert("Cleared. You'll be asked again on next save.");
+    }
+  });
+
+  // ───────── Submit ─────────
+  const msgEl = document.getElementById("status-msg");
+  const btn = document.getElementById("submitBtn");
+
+  function showMsg(text, type) {
+    msgEl.className = "status show " + type;
+    msgEl.textContent = text;
+  }
+
+  function isoDate(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  }
+
+  btn.addEventListener("click", async () => {
+    const title = document.getElementById("title").value.trim();
+    if (!title) {
+      showMsg("Please enter a task title.", "error");
+      return;
+    }
+
+    const token = getToken();
+    if (!token) {
+      showMsg("No token — can't save.", "error");
+      return;
+    }
+
+    const statusLabels = ["Not started", "In progress", "Done"];
+    const statusValue = state.statusTracked ? statusLabels[state.statusPos] : " "; // single space
+
+    const payload = {
+      title: title,
+      date: isoDate(state.selectedDate),
+      modules: Array.from(state.selectedModules),
+      status: statusValue
+    };
+
+    btn.disabled = true;
+    showMsg("Sending to GitHub …", "loading");
+
+    try {
+      const res = await fetch(
+        `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/dispatches`,
+        {
+          method: "POST",
+          headers: {
+            "Accept": "application/vnd.github+json",
+            "Authorization": "Bearer " + token,
+            "X-GitHub-Api-Version": "2022-11-28"
+          },
+          body: JSON.stringify({
+            event_type: "study_task",
+            client_payload: payload
+          })
+        }
+      );
+
+      if (res.status === 204) {
+        showMsg("Saved. Notion will follow in ~30 sec.", "success");
+        // Reset form
+        document.getElementById("title").value = "";
+        state.selectedModules.clear();
+        document.querySelectorAll(".module-chip.selected").forEach(c => c.classList.remove("selected"));
+        setTimeout(() => { btn.disabled = false; }, 3000);
+      } else {
+        const text = await res.text();
+        showMsg("Error: " + res.status + " · " + text.slice(0, 100), "error");
+        btn.disabled = false;
+      }
+    } catch (e) {
+      showMsg("Network error: " + e.message, "error");
+      btn.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>
