@@ -21,10 +21,10 @@ jobs:
           token   = os.environ["NOTION_TOKEN"]
           ds_id   = os.environ["NOTION_DATA_SOURCE_ID"]
 
-          title    = payload.get("title", "").strip() or "Untitled"
-          date     = payload["date"]
-          modules  = payload.get("modules", [])
-          status   = payload.get("status", "Not started")
+          title  = payload.get("title", "").strip() or "Untitled"
+          date   = payload["date"]
+          module = payload.get("module")  # single string or null
+          status = payload.get("status", "Not started")
 
           properties = {
               "Name": {
@@ -33,15 +33,15 @@ jobs:
               "Date": {
                   "date": {"start": date}
               },
-              "Module": {
-                  "multi_select": [{"name": m} for m in modules]
-              },
               "Status": {
                   "status": {"name": status}
               }
           }
 
-          # New API: parent uses data_source_id instead of database_id
+          # Module is a select, not multi_select. Only set if a value was chosen.
+          if module:
+              properties["Module"] = {"select": {"name": module}}
+
           body = {
               "parent": {
                   "type": "data_source_id",
