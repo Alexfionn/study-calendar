@@ -1,22 +1,12 @@
 {
   "modules": [
-    "Analysis",
     "Anki",
-    "Biodiversität",
-    "Biodiversität CH",
-    "Chemie",
     "do today",
-    "Ethik",
-    "Evolution",
-    "Evolution und Biodiv",
-    "Genetik",
-    "Linear Algebra",
+    "Ethik und Umwelt",
+    "Exkursion",
     "Organisatorisch",
-    "Physik",
-    "Programming in biology",
-    "Stochastik",
-    "Verhaltensbiologie",
-    "Ökologie"
+    "Physics of Life",
+    "Programming in biology"
   ],
-  "updated_at": "2026-09-11T07:49:36+00:00"
+  "updated_at": "2026-09-12T07:42:41+00:00"
 }
