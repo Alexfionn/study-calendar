@@ -1,13 +1,16 @@
 {
   "modules": [
     "Anki",
+    "Biodiversität von der Raumplanung zur Umsetzung",
     "do today",
+    "Ecophysiology",
     "Ethik und Umwelt",
     "Exkursion",
+    "Nachhaltigkeit und Gesellschaft",
     "Organisatorisch",
     "Physics of Life",
     "Programming in biology",
     "Wildlife ecology and conservation"
   ],
-  "updated_at": "2026-09-14T08:35:49+00:00"
+  "updated_at": "2026-09-15T08:25:14+00:00"
 }
